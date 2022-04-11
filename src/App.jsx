@@ -6,6 +6,7 @@ import {
   signOut,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendEmailVerification,
 } from "firebase/auth";
 
 const App = () => {
@@ -56,6 +57,11 @@ const App = () => {
         const user = userCredential.user;
 
         console.log('User created', user);
+
+        sendEmailVerification(auth.currentUser)
+        .then(() => {
+          console.log('Email sent');
+        });
       })
       .catch((error) => {
         const errorCode = error.code;
