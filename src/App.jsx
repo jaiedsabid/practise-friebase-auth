@@ -1,101 +1,20 @@
-import { useState } from "react";
-import { auth } from "./firebase/firebase.init";
-import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendEmailVerification,
-} from "firebase/auth";
+import { useFirebase } from "./hooks";
 
 const App = () => {
-  const [currentUser, setCurrentUser] = useState(null);
-
-  const handleGoogleSignIn = () => {
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        // The signed-in user info.
-        const user = result.user;
-
-        setCurrentUser(user);
-      })
-      .catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-
-        console.log({ errorCode, errorMessage, email, credential });
-      });
-  };
-
-  const handleGoogleSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        setCurrentUser(null);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
-  const handleSignUp = (event) => {
-    event.preventDefault();
-    const {email: { value: email }, password: {value: password}} = event.target;
-
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-
-        console.log('User created', user);
-
-        sendEmailVerification(auth.currentUser)
-        .then(() => {
-          console.log('Email sent');
-        });
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-
-        console.log({ errorCode, errorMessage });
-      });
-  };
-
-  const handleSignIn = (event) => {
-    event.preventDefault();
-    const {email: { value: email }, password: {value: password}} = event.target;
-
-    signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        
-        setCurrentUser(user);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-
-        console.log({ errorCode, errorMessage });
-      });
-  };
+  const {
+    currentUser,
+    handleGoogleSignIn,
+    handleSignIn,
+    handleSignUp,
+    handleSignOut,
+  } = useFirebase();
 
   return (
     <div className="container my-5 flex flex-col items-center justify-center">
       {!!currentUser ? (
         <button
           className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none transition-colors duration-400"
-          onClick={handleGoogleSignOut}
+          onClick={handleSignOut}
         >
           SignOut
         </button>
